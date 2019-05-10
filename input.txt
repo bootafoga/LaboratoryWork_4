@@ -1,0 +1,6 @@
+Saint-Petersburg;Moscow;50;20;
+Moscow;Habarovsk;40;1;
+Saint-Petersburg;Habarovsk;14;N/A;
+Vladivostok;Habarovsk;1;8;
+Vladivostok;Saint-Petersburg;N/A;5;
+Norilsk;Kurgan;11;15
