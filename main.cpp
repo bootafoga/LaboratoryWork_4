@@ -1,4 +1,5 @@
 #include "List.h"
+#include "map.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <iostream>
@@ -16,7 +17,7 @@ int findPath(int from, int to, List<int> array[SIZE]){
     return 0;
 }
 
-int Dijkstra(int st, int fin, List<int> array[SIZE], string cities[SIZE], int countCities)
+int Dijkstra(int st, int fin, List<int> array[SIZE], Map<string,int> citiesMap, int countCities)
 {
     int distance[countCities];
     bool visited[countCities];
@@ -30,7 +31,7 @@ int Dijkstra(int st, int fin, List<int> array[SIZE], string cities[SIZE], int co
         road[i] = "";
     }
     distance[st] = 0;
-    road[st] += cities[st];
+    road[st] += citiesMap.findVal(st);
 
     for (int i = 0; i < countCities-1; i++)
     {
@@ -51,22 +52,27 @@ int Dijkstra(int st, int fin, List<int> array[SIZE], string cities[SIZE], int co
                 distance[current] + rez < distance[j]){
                // cout << "from "<< u << " to" << i << " as " <<  distance[u]<< " plus " << rez << endl;
                 distance[j] = distance[current] + rez;
-                road[j] = road[current] + "->" + cities[j];
+                road[j] = road[current] + "->" + citiesMap.findVal(j);
             }
         }
     }
 
-    cout<<"The path from start to finish:\t\n";
-    cout << cities[st] << " > " << cities[fin] << " = " << distance[fin] << endl;
-    cout << "Road: " << road[fin];
+    if (distance[fin]!= INT_MAX){
+        cout<<"The path from start to finish:\t\n";
+        cout << citiesMap.findVal(st) << " > " << citiesMap.findVal(fin) << " = " << distance[fin] << endl;
+        cout << "Road: " << road[fin];
+    } else {
+        cout << "The path data doesn't exist.";
+    }
     return distance[fin];
 }
 
 
 int main(int argc, char* argv[]){
 
+    Map<string,int> citiesMap;
     List<int> array[SIZE]; // array of lists of adjacent vertices
-    string cities[SIZE]; // array of city names
+   // string cities[SIZE]; // array of city names
     int countCities = 0; // current number of cities
     string parse[SIZE][4]; // array for input from the file
     int countStr = 0; // the number of lines in the file
@@ -88,54 +94,28 @@ int main(int argc, char* argv[]){
                 }
             }
 
-            // if there is no such city in the array, add it
-            bool flag = false;
-            for (int i = 0; i < countCities; i++){
-                if (parse[countStr][0] == cities[i]) flag = true;
-            }
-            if (!flag) {
-                cities[countCities] = parse[countStr][0];
-                countCities++;
-            }
+            citiesMap.insert(parse[countStr][0], countCities++);
+
             countStr++;
         }
 
-        int start;
-        int finish;
         for (int i = 0; i < countStr; i++){
-            // if there is no such city in the array, add it
-            bool flag = false;
+            citiesMap.insert(parse[i][1], countCities++);
 
-            for (int j = 0; j < countCities; j++){
-                if (parse[i][0] == cities[j]) start = j;
-                if (parse[i][1] == cities[j]) { finish = j; flag = true;}
-            }
-
-            if (!flag) {
-                cities[countCities] = parse[i][1];
-                finish = countCities;
-                countCities++;
-            }
-
-            if(parse[i][2] != "N/A") array[start].push_back(finish, atoi(parse[i][2].c_str()));
-            if(parse[i][3] != "N/A") array[finish].push_back(start, atoi(parse[i][3].c_str()));
+            if(parse[i][2] != "N/A") array[citiesMap.find(parse[i][0])->value].push_back(citiesMap.find(parse[i][1])->value, atoi(parse[i][2].c_str()));
+            if(parse[i][3] != "N/A") array[citiesMap.find(parse[i][1])->value].push_back(citiesMap.find(parse[i][0])->value, atoi(parse[i][3].c_str()));
         }
     }
 
-    int start = 0;
-    int finish = 0;
-    string userFrom = "Saint-Petersburg";
-    string userTo = "Moscow";
-   // cout<<"Start point >> "; cin>>user;
+    // cout<<"Start point >> "; cin>>user;
+    string userFrom = "Moscow";
+    string userTo = "Norilsk";
 
-    for (int i = 0; i < countCities; i++){
-        if (userFrom == cities[i]) start = i;
-        if (userTo == cities[i]) finish = i;
-    }
 
-    Dijkstra(start, finish, array, cities, countCities);
 
-    testing::InitGoogleTest(&argc, argv);
-    int b = RUN_ALL_TESTS();
+    Dijkstra(citiesMap.find(userFrom)->value, citiesMap.find(userTo)->value, array, citiesMap, countCities);
+
+//    testing::InitGoogleTest(&argc, argv);
+//    int b = RUN_ALL_TESTS();
     return 0;
 }

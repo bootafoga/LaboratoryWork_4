@@ -58,6 +58,7 @@ public:
     void insert(T key, T1 value);
     void remove(T key);
     MapNode<T, T1>* find(T key);
+    string findVal(T1 val);
     void clear();
     List<T> get_keys();
     List<T1> get_values();
@@ -225,7 +226,41 @@ MapNode<T, T1> *Map<T, T1>::find(T key) {
             current =  (current->key < key)? current->right : current->left;
         }
     }
+    throw invalid_argument("The city entered is not in the existing paths.");
     return nullptr;
+}
+
+template<typename T, typename T1>
+string Map<T, T1>::findVal(T1 val) {
+    if (root == nullptr) {
+        cout << "Empty map\n";
+        return nullptr;
+    }
+    MapNode<T, T1> *currentNode = root;
+    string answer = "";
+    return helpFind(currentNode, val, answer);
+    //return foundNode;
+}
+
+template<typename T, typename T1>
+string helpFind(MapNode<T, T1> *current, T1 val, string answer) {
+    if (current) {
+        if (current->value == val){
+
+            answer += current->key;
+            //cout << answer;
+            return answer;
+        }
+         else {
+             string check = helpFind(current->right, val, answer);
+             if (check != "") answer = check;
+
+             check = helpFind(current->left, val, answer);
+             if (check != "") answer = check;
+
+         }
+    }
+    return answer;
 }
 
 
